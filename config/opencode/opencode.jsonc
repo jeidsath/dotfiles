@@ -11,7 +11,7 @@
         "sessionApprovals": true,
         "timeoutMs": 30000,
         "userMessageCount": 8,
-        "shadow": true,
+        "shadow": false,
         "debug": true
       }
     ]

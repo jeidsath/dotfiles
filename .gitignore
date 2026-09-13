@@ -6,3 +6,12 @@ Icon?
 .Spotlight-V100
 .Trashes
 Thumbs.db
+
+#git
+**/*.swp
+
+#opencode
+**/node_modules
+**/package.json
+**/package-lock.json
+**/bun.lock
