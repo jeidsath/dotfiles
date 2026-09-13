@@ -463,5 +463,5 @@
     }
   },
 
-  "default_agent": "01-local-build"
+  "default_agent": "07-minimax-m3-build"
 }
