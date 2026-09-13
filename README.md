@@ -22,7 +22,7 @@ Anything under `config/<app>/` is symlinked into `~/.config/<app>/`. Any dotfile
 
 ```sh
 git clone https://github.com/jeidsath/dotfiles.git ~/dotfiles
-~/dotfiles/install.sh
+~/dotfiles/install.sh [-n]  # -n / --dry-run prints a plan without changing anything
 ```
 
 The script is idempotent. Re-running reports each path as `ok` if already linked, `backup` and `linked` if it had to replace an existing file/dir. Anything replaced is moved aside with a `.bak` suffix — restore it manually if needed.
@@ -32,7 +32,7 @@ Some configs ship a `package.json` (e.g. `opencode`). On a fresh machine you'll 
 ## Uninstall
 
 ```sh
-~/dotfiles/uninstall.sh
+~/dotfiles/uninstall.sh [-n] # -n / --dry-run prints a plan without changing anything
 ```
 
 Removes only the symlinks the install script created. Your `.bak` files and anything outside the repo are left alone.
