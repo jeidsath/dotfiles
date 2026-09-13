@@ -1,4 +1,5 @@
 set -o vi
+PS1='\h:\w\$ '
 
 # Eternal bash history.
 # ---------------------
