@@ -22,3 +22,11 @@ export AWS_PROFILE=bedrock-coding
 export AWS_REGION=us-east-1
 
 export FIREWORKS_API_KEY=$(security find-generic-password -a "$USER" -s fireworks-api-key -w)
+
+# fzf
+[ -f "$(brew --prefix)/opt/fzf/shell/key-bindings.bash" ] && source "$(brew --prefix)/opt/fzf/shell/key-bindings.bash"
+[ -f "$(brew --prefix)/opt/fzf/shell/completion.bash" ] && source "$(brew --prefix)/opt/fzf/shell/completion.bash"
+
+# zoxide (smarter cd; Ctrl-G opens a fuzzy picker over previously-visited dirs)
+eval "$(zoxide init bash)"
+bind '"\C-g": "zi\n"'

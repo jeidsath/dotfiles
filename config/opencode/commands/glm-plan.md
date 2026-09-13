@@ -1,6 +1,6 @@
 ---
 description: Analyze a difficult problem with GLM 5.2
-agent: 10-glm-5p2-plan
+agent: 05-glm-5p2-plan
 ---
 
 Analyze $ARGUMENTS.

@@ -156,126 +156,15 @@
       "model": "llamaserver/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:UD-Q4_K_XL"
     },
 
-    "02-local-plan": {
-      "description": "Free, fully-local planning and analysis with Qwen3-Coder-30B-A3B (llama-server)",
-      "mode": "primary",
-      "model": "llamaserver/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:UD-Q4_K_XL",
-      "permission": {
-        "edit": "deny",
-        "bash": {
-          "*": "deny",
-
-          "git status": "allow",
-          "git status *": "allow",
-          "git diff": "allow",
-          "git diff *": "allow",
-          "git log": "allow",
-          "git log *": "allow",
-          "git show": "allow",
-          "git show *": "allow",
-
-          "grep *": "allow",
-          "rg *": "allow",
-          "find *": "allow",
-          "ls": "allow",
-          "ls *": "allow",
-          "pwd": "allow",
-
-          "cat *": "allow",
-          "head *": "allow",
-          "tail *": "allow",
-          "wc *": "allow"
-        }
-      }
-    },
-
-    "03-qwen-next-build": {
-      "description": "Low-cost routine coding with AWS Qwen3 Coder Next",
-      "mode": "primary",
-      "model": "amazon-bedrock/qwen.qwen3-coder-next"
-    },
-
-    "04-qwen-next-plan": {
-      "description": "Low-cost planning and analysis with AWS Qwen3 Coder Next",
-      "mode": "primary",
-      "model": "amazon-bedrock/qwen.qwen3-coder-next",
-      "permission": {
-        "edit": "deny",
-        "bash": {
-          "*": "deny",
-
-          "git status": "allow",
-          "git status *": "allow",
-          "git diff": "allow",
-          "git diff *": "allow",
-          "git log": "allow",
-          "git log *": "allow",
-          "git show": "allow",
-          "git show *": "allow",
-
-          "grep *": "allow",
-          "rg *": "allow",
-          "find *": "allow",
-          "ls": "allow",
-          "ls *": "allow",
-          "pwd": "allow",
-
-          "cat *": "allow",
-          "head *": "allow",
-          "tail *": "allow",
-          "wc *": "allow"
-        }
-      }
-    },
-
-    "05-deepseek-build": {
-      "description": "Low-cost routine coding with DeepSeek V3.2",
-      "mode": "primary",
-      "model": "amazon-bedrock/deepseek.v3.2"
-    },
-
-    "06-deepseek-plan": {
-      "description": "Low-cost planning and analysis with DeepSeek V3.2",
-      "mode": "primary",
-      "model": "amazon-bedrock/deepseek.v3.2",
-      "permission": {
-        "edit": "deny",
-        "bash": {
-          "*": "deny",
-
-          "git status": "allow",
-          "git status *": "allow",
-          "git diff": "allow",
-          "git diff *": "allow",
-          "git log": "allow",
-          "git log *": "allow",
-          "git show": "allow",
-          "git show *": "allow",
-
-          "grep *": "allow",
-          "rg *": "allow",
-          "find *": "allow",
-          "ls": "allow",
-          "ls *": "allow",
-          "pwd": "allow",
-
-          "cat *": "allow",
-          "head *": "allow",
-          "tail *": "allow",
-          "wc *": "allow"
-        }
-      }
-    },
-
-    "07-minimax-m3-build": {
+    "02-m3-build": {
       "description": "Low-cost agentic coding with MiniMax M3 on Fireworks",
       "mode": "primary",
       "model": "fireworks-ai/accounts/fireworks/models/minimax-m3"
     },
 
-    "08-minimax-m3-plan": {
+    "03-m3-plan": {
       "description": "Low-cost planning and analysis with MiniMax M3 on Fireworks",
-      "mode": "primary",
+      "mode": "subagent",
       "model": "fireworks-ai/accounts/fireworks/models/minimax-m3",
       "permission": {
         "edit": "deny",
@@ -306,15 +195,15 @@
       }
     },
 
-    "09-glm-5p2-build": {
+    "04-glm-5p2-build": {
       "description": "Strong open-model coding with GLM 5.2 on Fireworks",
       "mode": "primary",
       "model": "fireworks-ai/accounts/fireworks/models/glm-5p2"
     },
 
-    "10-glm-5p2-plan": {
+    "05-glm-5p2-plan": {
       "description": "Strong open-model planning and analysis with GLM 5.2 on Fireworks",
-      "mode": "primary",
+      "mode": "subagent",
       "model": "fireworks-ai/accounts/fireworks/models/glm-5p2",
       "permission": {
         "edit": "deny",
@@ -345,93 +234,21 @@
       }
     },
 
-    "11-haiku-build": {
-      "description": "Fast, low-cost Claude coding with Haiku 4.5",
-      "mode": "primary",
-      "model": "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0"
-    },
-
-    "12-haiku-plan": {
-      "description": "Fast, low-cost Claude planning and analysis with Haiku 4.5",
-      "mode": "primary",
-      "model": "amazon-bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0",
-      "permission": {
-        "edit": "deny",
-        "bash": {
-          "*": "deny",
-
-          "git status": "allow",
-          "git status *": "allow",
-          "git diff": "allow",
-          "git diff *": "allow",
-          "git log": "allow",
-          "git log *": "allow",
-          "git show": "allow",
-          "git show *": "allow",
-
-          "grep *": "allow",
-          "rg *": "allow",
-          "find *": "allow",
-          "ls": "allow",
-          "ls *": "allow",
-          "pwd": "allow",
-
-          "cat *": "allow",
-          "head *": "allow",
-          "tail *": "allow",
-          "wc *": "allow"
-        }
-      }
-    },
-
-    "13-sonnet-build": {
+    "06-sonnet-build": {
       "description": "Mid-tier everyday coding with Claude Sonnet 5",
       "mode": "primary",
       "model": "amazon-bedrock/us.anthropic.claude-sonnet-5"
     },
 
-    "14-sonnet-plan": {
-      "description": "Mid-tier planning and analysis with Claude Sonnet 5",
-      "mode": "primary",
-      "model": "amazon-bedrock/us.anthropic.claude-sonnet-5",
-      "permission": {
-        "edit": "deny",
-        "bash": {
-          "*": "deny",
-
-          "git status": "allow",
-          "git status *": "allow",
-          "git diff": "allow",
-          "git diff *": "allow",
-          "git log": "allow",
-          "git log *": "allow",
-          "git show": "allow",
-          "git show *": "allow",
-
-          "grep *": "allow",
-          "rg *": "allow",
-          "find *": "allow",
-          "ls": "allow",
-          "ls *": "allow",
-          "pwd": "allow",
-
-          "cat *": "allow",
-          "head *": "allow",
-          "tail *": "allow",
-          "wc *": "allow"
-        }
-      }
-    },
-
-    "15-opus-build": {
+    "07-opus-build": {
       "description": "Implement difficult changes with Claude Opus 5",
       "mode": "primary",
       "model": "amazon-bedrock/us.anthropic.claude-opus-5"
     },
 
-    "16-opus-plan": {
+    "08-opus-plan": {
       "description": "Plan difficult changes with Claude Opus 5",
-      "mode": "primary",
+      "mode": "subagent",
       "model": "amazon-bedrock/us.anthropic.claude-opus-5",
       "permission": {
         "edit": "deny",
@@ -463,5 +280,5 @@
     }
   },
 
-  "default_agent": "07-minimax-m3-build"
+  "default_agent": "02-m3-build"
 }

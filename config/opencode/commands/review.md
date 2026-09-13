@@ -1,6 +1,6 @@
 ---
 description: Independent GLM 5.2 review of current changes
-agent: 10-glm-5p2-plan
+agent: 05-glm-5p2-plan
 subagent: true
 ---
 

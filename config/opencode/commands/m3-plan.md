@@ -1,6 +1,6 @@
 ---
 description: Analyze a task with MiniMax M3 without editing
-agent: 08-minimax-m3-plan
+agent: 03-m3-plan
 ---
 
 Analyze $ARGUMENTS.
