@@ -1,0 +1,15 @@
+{
+  "plugin": [
+    [
+      "@leohenon/opencode-vim-plugin",
+      {
+        "vim_enter_submit": true
+      }
+    ],
+    "opencode-auto-permissions"
+  ],
+  "keybinds": {
+    "input_newline": "alt+return",
+    "app_exit": "<leader>q"
+  }
+}
