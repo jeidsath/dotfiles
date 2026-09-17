@@ -1,6 +1,6 @@
 ---
-description: Solve a difficult coding task with GLM 5.2
-agent: 04-glm-5p2-build
+description: Solve a difficult coding task with GLM 5.3
+agent: 04-glm-5p3-build
 ---
 
 Implement $ARGUMENTS.

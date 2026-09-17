@@ -47,6 +47,22 @@
             "context": 1040000,
             "output": 65536
           }
+        },
+
+        "accounts/fireworks/models/glm-5p3": {
+          "name": "GLM 5.3",
+          "limit": {
+            "context": 1040000,
+            "output": 65536
+          }
+        },
+
+        "accounts/fireworks/models/glm-5p3-flash": {
+          "name": "GLM 5.3 Flash",
+          "limit": {
+            "context": 1040000,
+            "output": 65536
+          }
         }
       }
     },
@@ -195,16 +211,16 @@
       }
     },
 
-    "04-glm-5p2-build": {
-      "description": "Strong open-model coding with GLM 5.2 on Fireworks",
+    "04-glm-5p3-build": {
+      "description": "Strong open-model coding with GLM 5.3 on Fireworks",
       "mode": "primary",
-      "model": "fireworks-ai/accounts/fireworks/models/glm-5p2"
+      "model": "fireworks-ai/accounts/fireworks/models/glm-5p3"
     },
 
-    "05-glm-5p2-plan": {
-      "description": "Strong open-model planning and analysis with GLM 5.2 on Fireworks",
+    "05-glm-5p3-plan": {
+      "description": "Strong open-model planning and analysis with GLM 5.3 on Fireworks",
       "mode": "subagent",
-      "model": "fireworks-ai/accounts/fireworks/models/glm-5p2",
+      "model": "fireworks-ai/accounts/fireworks/models/glm-5p3",
       "permission": {
         "edit": "deny",
         "bash": {
