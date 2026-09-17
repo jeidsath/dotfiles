@@ -351,6 +351,44 @@ async function debugLog(eventType: string, info: SessionInfo): Promise<void> {
   }
 }
 
+export interface DateBucket {
+  date: string;
+  cost: number;
+  sessions: number;
+  sessionIDs: string[];
+}
+
+export function bucketByDate(records: SessionRecord[]): DateBucket[] {
+  const buckets = new Map<string, DateBucket>();
+  for (const r of records) {
+    if (r == null) continue;
+    if (!Number.isFinite(r.createdAt)) continue;
+    if (!Number.isFinite(r.totalCost)) continue;
+    const date = localDateKey(new Date(r.createdAt));
+    const existing = buckets.get(date);
+    if (existing) {
+      existing.cost += r.totalCost;
+      existing.sessions += 1;
+      existing.sessionIDs.push(r.sessionID);
+    } else {
+      buckets.set(date, {
+        date,
+        cost: r.totalCost,
+        sessions: 1,
+        sessionIDs: [r.sessionID],
+      });
+    }
+  }
+  return [...buckets.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+const localDateKey = (d: Date): string => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
 const inflight = new Map<string, Promise<void>>();
 
 export const scheduleUpdate = (eventType: string, info: SessionInfo): Promise<void> => {

@@ -10,6 +10,7 @@ import {
   saveSession,
   migrateIfNeeded,
   scheduleUpdate,
+  bucketByDate,
 } from "./session-cost-tracker.ts";
 import plugin from "./session-cost-tracker.ts";
 
@@ -684,4 +685,228 @@ test("dispose: uses allSettled and resolves even when updates failed", async () 
     },
   });
   await assert.doesNotReject(hooks.dispose());
+});
+
+test("bucketByDate: empty input returns []", () => {
+  assert.deepEqual(bucketByDate([]), []);
+});
+
+test("bucketByDate: single record produces one bucket", () => {
+  const r = applyUpdate(null, {
+    id: "ses_a",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.42,
+    time: { created: new Date(2026, 8, 13, 10, 30).getTime() },
+  });
+  const buckets = bucketByDate([r]);
+  assert.equal(buckets.length, 1);
+  assert.equal(buckets[0].date, "2026-09-13");
+  assert.ok(Math.abs(buckets[0].cost - 0.42) < 1e-9);
+  assert.equal(buckets[0].sessions, 1);
+  assert.deepEqual(buckets[0].sessionIDs, ["ses_a"]);
+});
+
+test("bucketByDate: same-day records merge sessions and sum cost", () => {
+  const r1 = applyUpdate(null, {
+    id: "ses_a",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.1,
+    time: { created: new Date(2026, 8, 13, 9, 0).getTime() },
+  });
+  const r2 = applyUpdate(null, {
+    id: "ses_b",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.25,
+    time: { created: new Date(2026, 8, 13, 23, 59).getTime() },
+  });
+  const buckets = bucketByDate([r1, r2]);
+  assert.equal(buckets.length, 1);
+  assert.equal(buckets[0].date, "2026-09-13");
+  assert.equal(buckets[0].sessions, 2);
+  assert.ok(Math.abs(buckets[0].cost - 0.35) < 1e-9);
+  assert.deepEqual(buckets[0].sessionIDs, ["ses_a", "ses_b"]);
+});
+
+test("bucketByDate: cross-day records split into separate buckets sorted ascending", () => {
+  const r1 = applyUpdate(null, {
+    id: "ses_newest",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.5,
+    time: { created: new Date(2026, 8, 15).getTime() },
+  });
+  const r2 = applyUpdate(null, {
+    id: "ses_middle",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.2,
+    time: { created: new Date(2026, 8, 14).getTime() },
+  });
+  const r3 = applyUpdate(null, {
+    id: "ses_oldest",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.1,
+    time: { created: new Date(2026, 8, 13).getTime() },
+  });
+  const buckets = bucketByDate([r1, r2, r3]);
+  assert.deepEqual(
+    buckets.map((b) => b.date),
+    ["2026-09-13", "2026-09-14", "2026-09-15"],
+  );
+  assert.deepEqual(
+    buckets.map((b) => b.sessionIDs[0]),
+    ["ses_oldest", "ses_middle", "ses_newest"],
+  );
+  assert.equal(buckets[0].cost, 0.1);
+  assert.equal(buckets[1].cost, 0.2);
+  assert.equal(buckets[2].cost, 0.5);
+});
+
+test("bucketByDate: skips records with invalid createdAt", () => {
+  const good = applyUpdate(null, {
+    id: "ses_good",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.1,
+    time: { created: new Date(2026, 8, 13).getTime() },
+  });
+  const badNaN = {
+    ...good,
+    sessionID: "ses_bad1",
+    createdAt: Number.NaN,
+  };
+  const badInf = {
+    ...good,
+    sessionID: "ses_bad2",
+    createdAt: Number.POSITIVE_INFINITY,
+  };
+  const badString = {
+    ...good,
+    sessionID: "ses_bad3",
+    createdAt: "soon" as unknown as number,
+  };
+  const buckets = bucketByDate([good, badNaN, badInf, badString]);
+  assert.equal(buckets.length, 1);
+  assert.equal(buckets[0].date, "2026-09-13");
+  assert.equal(buckets[0].sessions, 1);
+  assert.deepEqual(buckets[0].sessionIDs, ["ses_good"]);
+});
+
+test("bucketByDate: skips records with non-finite totalCost", () => {
+  const good = applyUpdate(null, {
+    id: "ses_good",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.1,
+    time: { created: new Date(2026, 8, 13).getTime() },
+  });
+  const badCost = {
+    ...good,
+    sessionID: "ses_badcost",
+    totalCost: Number.NaN,
+  };
+  const buckets = bucketByDate([good, badCost]);
+  assert.equal(buckets.length, 1);
+  assert.equal(buckets[0].sessions, 1);
+});
+
+test("bucketByDate: uses local time zone, not UTC", () => {
+  const offsetMin = new Date().getTimezoneOffset();
+  if (offsetMin === 0) return;
+  const isWest = offsetMin > 0;
+  const utcTs = isWest
+    ? Date.UTC(2026, 8, 14, 2, 0, 0)
+    : Date.UTC(2026, 8, 14, 23, 0, 0);
+  const d = new Date(utcTs);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const localDate = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const utcDate = `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+  assert.notEqual(localDate, utcDate, "test setup: local and UTC dates must differ");
+  const r = applyUpdate(null, {
+    id: "ses_late",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.1,
+    time: { created: utcTs },
+  });
+  const buckets = bucketByDate([r]);
+  assert.equal(buckets.length, 1);
+  assert.equal(buckets[0].date, localDate);
+});
+
+test("bucketByDate: duplicate sessionID is accumulated rather than deduplicated", () => {
+  const ts = new Date(2026, 8, 13, 10, 0).getTime();
+  const r1 = applyUpdate(null, {
+    id: "ses_dup",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.1,
+    time: { created: ts },
+  });
+  const r2 = applyUpdate(null, {
+    id: "ses_dup",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.2,
+    time: { created: ts + 1000 },
+  });
+  const buckets = bucketByDate([r1, r2]);
+  assert.equal(buckets.length, 1);
+  assert.equal(buckets[0].sessions, 2);
+  assert.deepEqual(buckets[0].sessionIDs, ["ses_dup", "ses_dup"]);
+  assert.ok(Math.abs(buckets[0].cost - 0.3) < 1e-9);
+});
+
+test("bucketByDate: does not mutate input records", () => {
+  const r = applyUpdate(null, {
+    id: "ses_a",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.1,
+    time: { created: new Date(2026, 8, 13).getTime() },
+  });
+  const before = JSON.parse(JSON.stringify(r));
+  bucketByDate([r]);
+  assert.deepEqual(r, before);
+});
+
+test("bucketByDate: skips null and undefined entries", () => {
+  const ts = new Date(2026, 8, 13, 10, 0).getTime();
+  const good = applyUpdate(null, {
+    id: "ses_good",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.1,
+    time: { created: ts },
+  });
+  const buckets = bucketByDate([
+    good,
+    null as unknown as never,
+    undefined as unknown as never,
+  ]);
+  assert.equal(buckets.length, 1);
+  assert.deepEqual(buckets[0].sessionIDs, ["ses_good"]);
+});
+
+test("bucketByDate: all-invalid input returns []", () => {
+  const r = applyUpdate(null, {
+    id: "ses_a",
+    slug: "s",
+    model: { id: "m", providerID: "p" },
+    cost: 0.1,
+    time: { created: new Date(2026, 8, 13).getTime() },
+  });
+  assert.deepEqual(
+    bucketByDate([
+      { ...r, sessionID: "ses_b1", createdAt: Number.NaN },
+      { ...r, sessionID: "ses_b2", totalCost: Number.NaN },
+      { ...r, sessionID: "ses_b3", createdAt: Number.POSITIVE_INFINITY },
+      null as unknown as never,
+    ]),
+    [],
+  );
 });

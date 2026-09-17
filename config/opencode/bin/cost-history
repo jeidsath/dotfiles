@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DIR="${OPENCODE_SESSIONS_DIR:-$HOME/.opencode-sessions}"
+
+if [ ! -d "$DIR" ]; then
+  echo "cost-history: no sessions directory at $DIR" >&2
+  exit 1
+fi
+
+shopt -s nullglob
+
+files=()
+for f in "$DIR"/*.json; do
+  case "$f" in
+    *.tmp|*.corrupt.json) continue ;;
+  esac
+  files+=("$f")
+done
+
+if [ ${#files[@]} -eq 0 ]; then
+  echo "no session records in $DIR"
+  exit 0
+fi
+
+jq -nr '
+  def fmt_cost: (. * 10000 | round) / 10000 | tostring;
+  [ inputs
+    | select(type == "object")
+    | select(.createdAt | type == "number")
+    | select(.totalCost | type == "number")
+    | select(.sessionID | type == "string")
+    | {
+        date: ((.createdAt / 1000) | strflocaltime("%Y-%m-%d")),
+        cost: .totalCost
+      }
+  ]
+  | group_by(.date)
+  | map({date: .[0].date, cost: ([.[].cost] | add), sessions: length})
+  | sort_by(.date) as $buckets
+  | (if ($buckets | length) == 0 then empty
+     else
+       ["DATE", "COST", "SESSIONS"] | @tsv,
+       ($buckets[] | [.date, ("$" + (.cost | fmt_cost)), (.sessions | tostring)] | @tsv),
+       (["TOTAL", ("$" + ([$buckets[].cost] | add | fmt_cost)), ([$buckets[].sessions] | add | tostring)] | @tsv)
+     end
+  )
+' "${files[@]}" | column -t -s "$(printf '\t')"
