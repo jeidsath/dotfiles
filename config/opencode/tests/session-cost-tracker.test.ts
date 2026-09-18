@@ -11,8 +11,8 @@ import {
   migrateIfNeeded,
   scheduleUpdate,
   bucketByDate,
-} from "./session-cost-tracker.ts";
-import plugin from "./session-cost-tracker.ts";
+} from "../lib/session-cost-tracker-core.ts";
+import plugin from "../plugins/session-cost-tracker.ts";
 
 const ORIGINAL_HOME = process.env.HOME;
 
